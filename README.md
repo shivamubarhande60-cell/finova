@@ -1,77 +1,101 @@
+
 # FINOVA
 
-Private finance OS — ledger, budgets, goals, and an on-device AI copilot.
+**A personal finance OS for tracking transactions, managing budgets, setting goals, and understanding your finances with AI-assisted insights.**
 
-A full-stack personal finance product: public website, OTP sign-in, live dashboard, analytics, and a copilot that only answers from the user’s own numbers.
+FINOVA is a full-stack personal finance application featuring a public landing page, guest access, OTP authentication, a financial dashboard, analytics, and an AI copilot grounded in the user's own financial data.
 
-**Not financial advice.** Demo data ships so the desk is never empty.
+> **Disclaimer:** FINOVA provides financial insights for informational purposes only and does not provide financial advice. Demo data is included so the dashboard has something to display from the start.
 
-![Marketing site](docs/github-home.png)
+![FINOVA Marketing Website](docs/github-home.png)
 
-![Dashboard](docs/github-app.png)
-
----
-
-## Why this project
-
-Built as a production-style fintech app, not a CRUD demo.
-
-| Layer | What you can talk about in interviews |
-| --- | --- |
-| Product | Guest-first SaaS flow, OTP login, private ledger |
-| Frontend | React 19, TanStack Router, Tailwind v4, Recharts, Motion |
-| State | Zustand store + **computed** ledger (net is never stored) |
-| Auth | Email / phone OTP, hashed codes, rate limits, session token |
-| AI | Server-side Grok copilot with snapshot fencing + local fallback |
-| Data | Typed models, sanitization, export/backup |
-
-- Interview demo: [INTERVIEW.md](INTERVIEW.md)
-- Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
-- Put this on GitHub: [GITHUB.md](GITHUB.md)
+![FINOVA Dashboard](docs/github-app.png)
 
 ---
 
-## Features
+## ✨ Features
 
-- **Overview** — net, income, spend, savings rate, cash-flow chart, recent activity
-- **Ledger** — type English (`coffee 120`, `salary 45000`) or use the form
-- **Budgets & goals** — envelopes and targets that move with the book
-- **Analytics** — category mix, trends, health
-- **Copilot** — provides on-device insights from the ledger; optional live xAI enhancement via `XAI_API_KEY`
-- **OTP auth** — email or phone, 6-digit code, guest mode without an account
-- **On-device book** — data stays in the browser; export a backup anytime
-
----
-
-## Stack
-
-- **App:** React 19, TypeScript, Vite, TanStack Start / Router / Query
-- **UI:** Tailwind CSS v4, shadcn/Radix, Lucide, Recharts, Motion
-- **State:** Zustand
-- **Auth:** custom OTP (`src/lib/auth/otp.ts`)
-- **Insights:** on-device finance analysis with optional xAI enhancement (`src/lib/ai/grok.ts`)
+| Feature | What it does |
+|:---|:---|
+| **Financial Dashboard** | Summarizes net balance, income, spending, savings rate, cash flow, and recent activity. |
+| **Transaction Ledger** | Enter transactions using natural language, such as `coffee 120` or `salary 45000`, or use the transaction form. |
+| **Budgets & Goals** | Organizes spending into budget envelopes and tracks financial targets against ledger activity. |
+| **Analytics** | Visualizes spending categories, financial trends, and overall financial health. |
+| **AI Copilot** | Provides insights from the user's financial data, with optional live responses through the xAI API. |
+| **OTP Authentication** | Supports email or phone verification using six-digit codes, hashed code storage, and rate-limited attempts. |
+| **Guest Access** | Allows users to explore the application without creating an account. |
+| **Local Data & Backups** | Keeps the finance book in the browser and provides an export option for backups. |
 
 ---
 
-## Run locally
+## 🏗️ Architecture & Engineering Highlights
+
+FINOVA was built to demonstrate practical application engineering beyond basic CRUD operations.
+
+| Area | Implementation |
+|:---|:---|
+| **Frontend** | React 19, TypeScript, TanStack Router, Tailwind CSS v4 |
+| **UI & Visualization** | shadcn/Radix, Lucide, Recharts, Motion |
+| **State Management** | Zustand with computed financial totals |
+| **Authentication** | Custom OTP flow, hashed codes, rate limiting, and session tokens |
+| **AI Integration** | On-device financial analysis with optional server-side xAI Grok enhancement |
+| **Data Handling** | Typed models, input sanitization, and export/backup functionality |
+
+### Engineering decisions
+
+- **Computed ledger balances:** Financial totals are derived from transaction records instead of maintaining a separate stored net balance.
+- **Authentication safeguards:** OTP codes are hashed and verification attempts are rate-limited.
+- **Privacy-conscious AI:** The copilot is designed to answer using the signed-in user's own financial data.
+- **Graceful AI fallback:** Core financial insights remain available without an API key.
+- **Testing and security:** The project includes unit tests and security-audit work.
+
+---
+
+## 🛠️ Tech Stack
+
+**Languages:** TypeScript · JavaScript
+
+**Frontend:** React 19 · TanStack Router · TanStack Query · Tailwind CSS v4
+
+**UI & Charts:** shadcn/Radix · Lucide · Recharts · Motion
+
+**State Management:** Zustand
+
+**AI Integration:** xAI Grok API
+
+**Authentication:** Custom OTP and session handling
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js and npm
+- Git
+
+### Installation
 
 ```bash
-git clone https://github.com/<your-username>/finova.git
+git clone https://github.com/shivamubarhande60-cell/finova.git
 cd finova
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:8080`).
+Open the local URL printed by Vite in your terminal. The project is configured to use port `8080` by default.
 
-| Path | Page |
-| --- | --- |
-| `/` | Marketing site |
-| `/app` | Dashboard (guest works) |
-| `/login` | Email or phone OTP |
-| `/ledger` `/budgets` `/goals` `/analytics` `/advisor` | Product |
+### Optional: Enable live AI responses
 
-The finance copilot works without any API key. Optionally, create a local `.env` file containing `XAI_API_KEY=your_key` to enable live xAI responses. Never put the key in frontend code or commit it to Git.
+The financial copilot can provide local insights without an API key. To enable the optional live xAI integration, configure your local environment with:
+
+```env
+XAI_API_KEY=your_key_here
+```
+
+Use the environment configuration expected by the server. Never expose API keys in frontend code or commit secrets to Git.
+
+### Run type checking
 
 ```bash
 npm run typecheck
@@ -79,29 +103,56 @@ npm run typecheck
 
 ---
 
-## Project map
+## 🧭 Application Routes
 
-```
+| Route | Purpose |
+|:---|:---|
+| `/` | Public marketing website |
+| `/app` | Financial dashboard; guest access supported |
+| `/login` | Email or phone OTP authentication |
+| `/ledger` | Transaction management |
+| `/budgets` | Budget management |
+| `/goals` | Financial targets |
+| `/analytics` | Financial analytics |
+| `/advisor` | AI-powered financial insights |
+
+---
+
+## 📁 Project Structure
+
+```text
 src/
-  routes/            landing, dashboard, ledger, auth, copilot
-  components/
-    marketing/       public website
-    finance/         charts, capture, money
-    layout/          app shell
-  lib/
-    finance/         store, compute, parse, types
-    auth/            OTP + session
-    ai/              Grok copilot
+├── routes/          # Landing page, dashboard, ledger, auth and copilot
+├── components/
+│   ├── marketing/   # Public website
+│   ├── finance/     # Charts, transaction capture and money components
+│   └── layout/      # Application shell
+└── lib/
+    ├── finance/     # Store, calculations, parsing and types
+    ├── auth/        # OTP and session logic
+    └── ai/          # Grok copilot integration
+
+docs/                # Project screenshots and documentation
 ```
 
 ---
 
-## Resume line
+## 📚 Further Documentation
 
-> FINOVA — full-stack personal finance OS (React, TypeScript, TanStack). Ledger, budgets, OTP auth, and a server-side AI copilot that answers only from the user’s own transactions.
+- [Architecture](ARCHITECTURE.md)
+- [Interview Notes](INTERVIEW.md)
+- [GitHub Project Notes](GITHUB.md)
 
 ---
 
-## License
+## 💼 Project Summary
 
-MIT
+**FINOVA — Personal Finance Management Platform**
+
+Built with React and TypeScript, featuring a computed transaction ledger, budget and goal tracking, OTP authentication, financial analytics, and an AI copilot with user-scoped financial insights.
+
+---
+
+## ⚖️ License
+
+MIT License. See [LICENSE](LICENSE).
