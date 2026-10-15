@@ -236,7 +236,9 @@ ${fence(data.snapshot)}`,
       700,
       0.4,
     );
-    return result.ok ? result : { ok: true as const, text: localAdvice(data.snapshot, last.content) };
+    return result.ok
+      ? { ok: true as const, text: result.text, source: "grok" as const }
+      : { ok: true as const, text: localAdvice(data.snapshot, last.content), source: "local" as const };
   });
 
 export const monthlyBriefFn = createServerFn({ method: "POST" })
@@ -256,7 +258,9 @@ export const monthlyBriefFn = createServerFn({ method: "POST" })
       650,
       0.35,
     );
-    return result.ok ? result : { ok: true as const, text: localBrief(data.snapshot) };
+    return result.ok
+      ? { ok: true as const, text: result.text, source: "grok" as const }
+      : { ok: true as const, text: localBrief(data.snapshot), source: "local" as const };
   });
 
 export const suggestBudgetsFn = createServerFn({ method: "POST" })
@@ -277,7 +281,9 @@ Use existing expense categories in the snapshot. 4–8 items. Amounts should be 
       500,
       0.2,
     );
-    return result.ok ? result : { ok: true as const, text: localBudgetSuggestions(data.snapshot) };
+    return result.ok
+      ? { ok: true as const, text: result.text, source: "grok" as const }
+      : { ok: true as const, text: localBudgetSuggestions(data.snapshot), source: "local" as const };
   });
 
 export const findLeaksFn = createServerFn({ method: "POST" })
@@ -297,5 +303,7 @@ export const findLeaksFn = createServerFn({ method: "POST" })
       450,
       0.35,
     );
-    return result.ok ? result : { ok: true as const, text: localLeaks(data.snapshot) };
+    return result.ok
+      ? { ok: true as const, text: result.text, source: "grok" as const }
+      : { ok: true as const, text: localLeaks(data.snapshot), source: "local" as const };
   });

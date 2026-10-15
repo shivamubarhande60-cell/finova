@@ -13,6 +13,7 @@ export function CaptureBar() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [parsed, setParsed] = useState<ParsedCapture | null>(null);
+  const [source, setSource] = useState<"grok" | "local" | null>(null);
   const addTransaction = useFinanceStore((s) => s.addTransaction);
   const accounts = useFinanceStore((s) => s.accounts);
 
@@ -21,15 +22,24 @@ export function CaptureBar() {
     setBusy(true);
     try {
       const res = await parseCaptureFn({ data: { text } });
-      if (res.ok) setParsed(res.parsed);
+      if (res.ok) {
+        setParsed(res.parsed);
+        setSource(res.source);
+      }
       else {
         const local = localParse(text);
-        if (local) setParsed(local);
+        if (local) {
+          setParsed(local);
+          setSource("local");
+        }
         else toast.error(res.error);
       }
     } catch {
       const local = localParse(text);
-      if (local) setParsed(local);
+      if (local) {
+        setParsed(local);
+        setSource("local");
+      }
       else toast.error("Could not interpret that.");
     } finally {
       setBusy(false);
@@ -49,15 +59,17 @@ export function CaptureBar() {
     });
     toast.success("Captured");
     setParsed(null);
+    setSource(null);
     setText("");
   };
 
   return (
     <Card>
       <CardContent className="p-4 sm:p-5">
-        <p className="mb-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          Quick capture
-        </p>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Quick capture</p>
+          {parsed && source ? <span className={`ai-source ${source === "grok" ? "is-live" : ""}`}>{source === "grok" ? "Grok AI" : "On-device"}</span> : null}
+        </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={text}

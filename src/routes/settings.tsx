@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/finance/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import type { Currency } from "@/lib/finance/types";
 import { useFinanceStore } from "@/lib/finance/store";
-import { useFinovaAuth } from "@/lib/auth/finova-session";
+import { signOut } from "@/lib/auth/client";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { toast } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
@@ -26,10 +27,7 @@ function SettingsPage() {
   const resetEmpty = useFinanceStore((s) => s.resetEmpty);
   const exportJson = useFinanceStore((s) => s.exportJson);
   const importJson = useFinanceStore((s) => s.importJson);
-  const user = useFinovaAuth((s) => s.user);
-  const clearSession = useFinovaAuth((s) => s.clearSession);
-  const navigate = useNavigate();
-
+  const user = useCurrentUser();
   const download = () => {
     const blob = new Blob([exportJson()], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -57,15 +55,11 @@ function SettingsPage() {
           {user ? (
             <>
               <p className="text-sm">
-                Signed in with {user.method}: <span className="text-foreground">{user.destination}</span>
+                Signed in as <span className="text-foreground">{user.primaryEmail ?? user.displayName}</span>
               </p>
               <Button
                 variant="outline"
-                onClick={() => {
-                  clearSession();
-                  toast.success("Signed out");
-                  void navigate({ to: "/login" });
-                }}
+                onClick={() => void signOut("/login").catch(() => toast.error("Could not sign out. Try again."))}
               >
                 Sign out
               </Button>
@@ -73,7 +67,7 @@ function SettingsPage() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                Sign in with email or phone OTP to keep this session on this device.
+                Sign in with email or mobile OTP to create a secure account session.
               </p>
               <Button asChild>
                 <Link to="/login">Sign in</Link>

@@ -13,7 +13,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/phone.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -55,6 +55,7 @@
     "gsap": "^3.15.0",
     "jose": "6.2.9",
     "kysely": "^0.28.5",
+    "libphonenumber-js": "^1.13.14",
     "lucide-react": "^0.510.0",
     "motion": "^13.2.0",
     "pg": "^8.16.3",

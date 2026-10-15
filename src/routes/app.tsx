@@ -7,6 +7,7 @@ import { CountMoney } from "@/components/finance/count-money";
 import { Money } from "@/components/finance/money";
 import { PeriodSelect } from "@/components/finance/period-select";
 import { CopilotDock } from "@/components/chronicle/copilot-dock";
+import { FirstRunGuide } from "@/components/finance/first-run-guide";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ function Overview() {
 
   return (
     <div className="aura-dash">
+      <FirstRunGuide />
       <div className="aura-kpis">
         {kpis.map((k, i) => (
           <div key={k.label} className={cn("kpi-tile", KPI_TONES[i])}>

@@ -29,6 +29,7 @@ function AdvisorPage() {
   const [busy, setBusy] = useState(false);
   const [brief, setBrief] = useState<string | null>(null);
   const [leaks, setLeaks] = useState<string | null>(null);
+  const [source, setSource] = useState<"grok" | "local" | null>(null);
   const snapshot = JSON.stringify(ledger.snapshot);
 
   const ask = async (text: string) => {
@@ -40,8 +41,12 @@ function AdvisorPage() {
     setBusy(true);
     try {
       const res = await advisorChatFn({ data: { snapshot, messages: next } });
-      if (res.ok) setMessages([...next, { role: "assistant", content: res.text }]);
-      else toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      setSource(res.source);
+      setMessages([...next, { role: "assistant", content: res.text }]);
     } catch {
       toast.error("Advisor is unreachable.");
     } finally {
@@ -53,8 +58,8 @@ function AdvisorPage() {
     setBusy(true);
     try {
       const res = await monthlyBriefFn({ data: { snapshot } });
-      if (res.ok) setBrief(res.text);
-      else toast.error(res.error);
+      setSource(res.source);
+      setBrief(res.text);
     } catch {
       toast.error("Could not write the brief.");
     } finally {
@@ -66,8 +71,8 @@ function AdvisorPage() {
     setBusy(true);
     try {
       const res = await findLeaksFn({ data: { snapshot } });
-      if (res.ok) setLeaks(res.text);
-      else toast.error(res.error);
+      setSource(res.source);
+      setLeaks(res.text);
     } catch {
       toast.error("Could not scan for leaks.");
     } finally {
@@ -79,10 +84,7 @@ function AdvisorPage() {
     setBusy(true);
     try {
       const res = await suggestBudgetsFn({ data: { snapshot } });
-      if (!res.ok) {
-        toast.error(res.error);
-        return;
-      }
+      setSource(res.source);
       const jsonText = res.text.replace(/^```json\s*|\s*```$/g, "");
       const parsed = JSON.parse(jsonText) as {
         note?: string;
@@ -109,8 +111,13 @@ function AdvisorPage() {
       <PageHeader
         kicker="Copilot"
         title="What would you like to understand?"
-        description="Uses your ledger only when you ask. Offline insights are always available."
+        description="Answers use your ledger only when you ask. Local insights are available if live AI is offline."
       />
+
+      <div className={`copilot-mode ${source === "grok" ? "is-live" : ""}`} aria-live="polite">
+        <span />
+        {source === "grok" ? "Live Grok" : source === "local" ? "On-device insights" : "AI mode appears after your first request"}
+      </div>
 
       <div className="mb-6 grid gap-2 sm:grid-cols-3">
         <Button variant="outline" disabled={busy} onClick={() => void runBrief()}>
