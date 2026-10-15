@@ -1,4 +1,8 @@
-import { genericOAuthClient } from "better-auth/client/plugins";
+import {
+  emailOTPClient,
+  genericOAuthClient,
+  phoneNumberClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { GROK_PROVIDERS } from "./providers";
 
@@ -17,7 +21,7 @@ import { GROK_PROVIDERS } from "./providers";
  * the visitor stays signed in.
  */
 export const authClient = createAuthClient({
-  plugins: [genericOAuthClient()],
+  plugins: [genericOAuthClient(), emailOTPClient(), phoneNumberClient()],
   fetchOptions: {
     onRequest(ctx) {
       const token = getBearerToken();

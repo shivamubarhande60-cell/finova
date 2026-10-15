@@ -92,9 +92,11 @@ export function TransactionFormDialog() {
 
   return (
     <Dialog open={open} onOpenChange={(v) => (!v ? closeForm() : null)}>
-      <DialogContent>
+        <DialogContent className="transaction-dialog !border-zinc-200 !bg-white !text-zinc-900">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit transaction" : "New transaction"}</DialogTitle>
+          <DialogTitle className="font-sans text-xl font-semibold tracking-tight">
+            {editing ? "Edit transaction" : "New transaction"}
+          </DialogTitle>
           <DialogDescription>Logged privately on this device.</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="grid gap-4">

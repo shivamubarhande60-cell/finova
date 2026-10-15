@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
   Bell,
+  CircleUserRound,
   Flag,
   LayoutDashboard,
   List,
@@ -24,7 +25,7 @@ import { TransactionFormDialog } from "@/components/finance/transaction-form";
 import { Money } from "@/components/finance/money";
 import { motion } from "motion/react";
 import { PageFade } from "@/components/motion/page-fade";
-import { useFinovaAuth } from "@/lib/auth/finova-session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 
 const NAV = [
   { to: "/app", label: "Overview", icon: LayoutDashboard, exact: true },
@@ -51,12 +52,28 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const openForm = useFinanceStore((s) => s.openForm);
   const ledger = useLedger();
-  const user = useFinovaAuth((s) => s.user);
+  const user = useCurrentUser();
   const [more, setMore] = useState(false);
   const isMarketing = pathname === "/" || pathname === "/login";
   const display = user?.displayName || ledger.settings.displayName || "Guest";
   const initial = display.slice(0, 1).toUpperCase();
-  const alerts = ledger.upcoming.length;
+  const notices = [
+    ...ledger.upcoming.map((item) => ({
+      id: `due-${item.id}`,
+      title: item.description,
+      detail: `Due ${item.nextDate}`,
+      amount: item.type === "expense" ? -item.amount : item.amount,
+    })),
+    ...ledger.budgetRows
+      .filter((item) => item.pct >= 85)
+      .map((item) => ({
+        id: `budget-${item.category}`,
+        title: `${item.category} budget`,
+        detail: `${Math.round(item.pct)}% used this month`,
+        amount: null,
+      })),
+  ];
+  const alerts = notices.length;
 
   if (isMarketing) {
     return (
@@ -132,56 +149,44 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button size="sm" variant="outline" className="relative hidden sm:inline-flex">
-                    Notifications
-                    {alerts ? (
-                      <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-expense px-1 text-[10px] text-white">
-                        {alerts}
-                      </span>
-                    ) : null}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-[min(20rem,calc(100vw-1.5rem))]">
-                  <p className="text-sm font-medium">Upcoming</p>
-                  <div className="mt-3 space-y-3">
-                    {ledger.upcoming.slice(0, 4).map((r) => (
-                      <div key={r.id} className="flex items-start justify-between gap-3 text-sm">
-                        <div>
-                          <p>{r.description}</p>
-                          <p className="text-xs text-muted-foreground">{r.nextDate}</p>
-                        </div>
-                        <Money
-                          value={r.type === "expense" ? -r.amount : r.amount}
-                          signed
-                          className="text-xs font-semibold"
-                        />
-                      </div>
-                    ))}
-                    {ledger.upcoming.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No upcoming bills.</p>
-                    ) : null}
-                  </div>
-                </PopoverContent>
-              </Popover>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button size="icon" variant="outline" className="relative" aria-label="Alerts">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="relative notification-trigger"
+                    aria-label={alerts ? `${alerts} notifications` : "Notifications"}
+                    title="Notifications"
+                  >
                     <Bell className="h-4 w-4" />
-                    {alerts ? <span className="alert-dot" /> : null}
+                    {alerts ? <span className="alert-count" aria-hidden="true">{alerts > 9 ? "9+" : alerts}</span> : null}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-[min(20rem,calc(100vw-1.5rem))] sm:hidden">
-                  <p className="text-sm font-medium">Upcoming</p>
-                  <div className="mt-3 space-y-3">
-                    {ledger.upcoming.slice(0, 4).map((r) => (
-                      <div key={r.id} className="flex justify-between gap-3 text-sm">
-                        <p className="truncate">{r.description}</p>
-                        <Money value={r.type === "expense" ? -r.amount : r.amount} signed className="text-xs" />
+                  <PopoverContent align="end" className="notification-popover !border-zinc-200 !bg-white !text-zinc-900 w-[min(22rem,calc(100vw-1.5rem))]">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold">Notifications</p>
+                    <span className="text-xs text-muted-foreground">Next 21 days</span>
+                  </div>
+                  <div className="mt-3 divide-y divide-border">
+                    {notices.slice(0, 8).map((notice) => (
+                      <div key={notice.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">{notice.title}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{notice.detail}</p>
+                        </div>
+                        {notice.amount !== null ? <Money value={notice.amount} signed className="shrink-0 text-xs font-semibold" /> : null}
                       </div>
                     ))}
+                    {notices.length === 0 ? (
+                      <p className="py-4 text-sm text-muted-foreground">You’re all caught up. Upcoming bills and budgets near their limits will appear here.</p>
+                    ) : null}
                   </div>
                 </PopoverContent>
               </Popover>
+              <Button asChild size="sm" variant="outline" className="profile-action">
+                <Link to="/settings" title="Profile and settings" aria-label="Profile and settings">
+                  <span className="profile-avatar">{user ? initial : <CircleUserRound className="h-4 w-4" />}</span>
+                  <span className="hidden max-w-24 truncate md:inline">{user?.displayName || "Profile"}</span>
+                </Link>
+              </Button>
               <Button size="sm" className="hidden lg:inline-flex" onClick={() => openForm()}>
                 <Plus className="h-4 w-4" />
                 Add transaction

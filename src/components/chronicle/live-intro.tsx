@@ -11,7 +11,7 @@ import {
 import { useFinanceStore } from "@/lib/finance/store";
 import { money } from "@/lib/finance/format";
 import { useLedger } from "@/lib/finance/use-ledger";
-import { useFinovaAuth } from "@/lib/auth/finova-session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui/button";
 import { CashflowChart } from "@/components/finance/charts";
 
@@ -27,7 +27,7 @@ export function LiveIntro() {
   const name = useFinanceStore((s) => s.settings.displayName) || "there";
   const ledger = useLedger();
   const reduce = useReducedMotion();
-  const user = useFinovaAuth((s) => s.user);
+  const user = useCurrentUser();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
