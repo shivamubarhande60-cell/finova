@@ -2,13 +2,16 @@ const MAX_TX = 8000;
 const MAX_LIST = 200;
 
 export function sanitizeText(value: unknown, max = 120) {
-  return String(value ?? "")
-    .replace(/[\u0000-\u001F\u007F]/g, "")
+  return Array.from(String(value ?? ""))
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code > 0x1f && code !== 0x7f;
+    })
+    .join("")
     .replace(/[<>]/g, "")
     .trim()
     .slice(0, max);
 }
-
 export function sanitizeAmount(value: unknown, max = 1_000_000_000) {
   const n = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
   if (!Number.isFinite(n) || n <= 0) return null;
